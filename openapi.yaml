@@ -1,0 +1,313 @@
+openapi: 3.0.4
+info:
+  title: Institutional Holdings
+  description: >-
+    Institutional Holdings returns SEC Form 13F holdings: every position a fund
+    manager reported for a quarter, with shares, value, portfolio weight,
+    put/call, discretion and voting authority, plus the quarter-over-quarter
+    change on every position. Look up a manager by CIK or name, or reverse it
+    and list every institution holding a ticker or CUSIP.
+  termsOfService: https://apiverve.com/terms/
+  contact:
+    name: APIVerve Support
+    email: hello@apiverve.com
+    url: https://apiverve.com/contact
+  version: 1.0.0
+externalDocs:
+  description: Learn more about APIVerve
+  url: https://docs.apiverve.com?utm_source=openapi
+servers:
+  - url: https://api.apiverve.com/
+paths:
+  /v1/institutionalholdings:
+    get:
+      summary: Institutional Holdings
+      description: >-
+        Get a fund manager's 13F holdings with quarter-over-quarter changes (cik
+        or manager), or every manager holding a security (ticker or cusip).
+      operationId: institutionalholdings
+      parameters:
+        - name: cik
+          in: query
+          schema:
+            type: string
+          required: false
+          description: >-
+            SEC Central Index Key of the 13F filer, e.g. 1067983 for Berkshire
+            Hathaway. Returns that manager's holdings.
+          example: '1067983'
+        - name: manager
+          in: query
+          schema:
+            type: string
+          required: false
+          description: >-
+            Manager name to search for instead of cik, e.g. bridgewater. The
+            best match is returned, with other close matches in otherMatches.
+          example: berkshire hathaway
+        - name: ticker
+          in: query
+          schema:
+            type: string
+          required: false
+          description: >-
+            Ticker symbol. Alone, lists the managers holding it; with cik or
+            manager, filters that manager's holdings to it.
+          example: AAPL
+        - name: cusip
+          in: query
+          schema:
+            type: string
+          required: false
+          description: >-
+            9-character CUSIP. Alone, lists the managers holding it; with cik or
+            manager, filters that manager's holdings to it.
+          example: '037833100'
+        - name: period
+          in: query
+          schema:
+            type: string
+          required: false
+          description: >-
+            Quarter to read, as a quarter end (2026-03-31) or quarter (2026Q1).
+            Defaults to the latest quarter.
+          example: 2026Q1
+        - name: changeType
+          in: query
+          schema:
+            type: string
+          required: false
+          description: >-
+            Only positions that are new, increased, decreased, unchanged or
+            soldout since the previous quarter. Sold-out positions appear only
+            with soldout.
+          example: new
+        - name: putCall
+          in: query
+          schema:
+            type: string
+          required: false
+          description: >-
+            Option filter: put, call, none (shares and principal only) or all.
+            Defaults to all.
+          example: none
+        - name: minValue
+          in: query
+          schema:
+            type: number
+          required: false
+          description: Only positions worth at least this many US dollars.
+          example: 1000000
+        - name: maxValue
+          in: query
+          schema:
+            type: number
+          required: false
+          description: Only positions worth at most this many US dollars.
+          example: 1000000000
+        - name: sort
+          in: query
+          schema:
+            type: string
+          required: false
+          description: >-
+            Sort by value (default), shares, change (share change),
+            changepercent or portfolio (weight).
+          example: value
+        - name: order
+          in: query
+          schema:
+            type: string
+          required: false
+          description: 'Sort order: desc (default) or asc.'
+          example: desc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          required: false
+          description: Rows to return (1-100). Defaults to 10.
+          example: 25
+        - name: offset
+          in: query
+          schema:
+            type: integer
+          required: false
+          description: Rows to skip, for paging through a large portfolio or holder list.
+          example: 25
+        - name: summary
+          in: query
+          schema:
+            type: boolean
+          required: false
+          description: >-
+            Add a summary: for a manager, value change, position counts by
+            change type, top-10 concentration and turnover; for a security,
+            holder flows and top-10 share concentration.
+          example: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: status
+                  error:
+                    type: string
+                    description: error
+                  data:
+                    type: object
+                    description: data
+              example:
+                status: ok
+                error: null
+                data:
+                  mode: manager
+                  period: '2026-06-30'
+                  quarter: 2026Q2
+                  previousPeriod: '2026-03-31'
+                  manager:
+                    cik: '0001067983'
+                    name: Berkshire Hathaway Inc
+                    city: Omaha
+                    state: NE
+                  filing:
+                    formType: 13F-HR
+                    accessionNumber: 0001193125-26-352200
+                    filingDate: '2026-08-14'
+                    amendments: 0
+                    url: https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/
+                  totalValue: 299253556246
+                  positionCount: 29
+                  count: 5
+                  offset: 0
+                  totalMatches: 29
+                  holdings:
+                    - issuer: APPLE INC
+                      ticker: AAPL
+                      cusip: '037833100'
+                      figi: BBG001S5N8V8
+                      titleOfClass: COM
+                      shares: 227917808
+                      shareType: SH
+                      value: 65950296923
+                      portfolioPercent: 22.0383
+                      putCall: null
+                      investmentDiscretion: DFND
+                      votingAuthority:
+                        sole: 227917808
+                        shared: 0
+                        none: 0
+                      previousShares: 227917808
+                      previousValue: 57843260493
+                      shareChange: 0
+                      shareChangePercent: 0
+                      valueChange: 8107036430
+                      changeType: unchanged
+                      isNew: false
+                    - issuer: AMERICAN EXPRESS CO COM
+                      ticker: AXP
+                      cusip: '025816109'
+                      figi: BBG001S5P034
+                      titleOfClass: Stock
+                      shares: 151610700
+                      shareType: SH
+                      value: 51282319275
+                      portfolioPercent: 17.1367
+                      putCall: null
+                      investmentDiscretion: DFND
+                      votingAuthority:
+                        sole: 151610700
+                        shared: 0
+                        none: 0
+                      previousShares: 151610700
+                      previousValue: 45859204536
+                      shareChange: 0
+                      shareChangePercent: 0
+                      valueChange: 5423114739
+                      changeType: unchanged
+                      isNew: false
+                    - issuer: COCA COLA CO
+                      ticker: KO
+                      cusip: '191216100'
+                      figi: BBG001S5SMQ8
+                      titleOfClass: COM
+                      shares: 400000000
+                      shareType: SH
+                      value: 32508000000
+                      portfolioPercent: 10.863
+                      putCall: null
+                      investmentDiscretion: DFND
+                      votingAuthority:
+                        sole: 400000000
+                        shared: 0
+                        none: 0
+                      previousShares: 400000000
+                      previousValue: 30420000000
+                      shareChange: 0
+                      shareChangePercent: 0
+                      valueChange: 2088000000
+                      changeType: unchanged
+                      isNew: false
+                    - issuer: ALPHABET INC
+                      ticker: GOOGL
+                      cusip: 02079K305
+                      figi: BBG009S39JY5
+                      titleOfClass: CAP STK CL A
+                      shares: 78791167
+                      shareType: SH
+                      value: 28157599351
+                      portfolioPercent: 9.4093
+                      putCall: null
+                      investmentDiscretion: DFND
+                      votingAuthority:
+                        sole: 78791167
+                        shared: 0
+                        none: 0
+                      previousShares: 54249798
+                      previousValue: 15600071913
+                      shareChange: 24541369
+                      shareChangePercent: 45.24
+                      valueChange: 12557527438
+                      changeType: increased
+                      isNew: false
+                    - issuer: BANK OF AMER CORP COM
+                      ticker: BAC
+                      cusip: '060505104'
+                      figi: BBG000BD2C18
+                      titleOfClass: Stock
+                      shares: 483394015
+                      shareType: SH
+                      value: 27543790975
+                      portfolioPercent: 9.2042
+                      putCall: null
+                      investmentDiscretion: DFND
+                      votingAuthority:
+                        sole: 483394015
+                        shared: 0
+                        none: 0
+                      previousShares: 513624165
+                      previousValue: 25039178044
+                      shareChange: -30230150
+                      shareChangePercent: -5.89
+                      valueChange: 2504612931
+                      changeType: decreased
+                      isNew: false
+        '401':
+          description: Your request was not authorized, or your API Key was invalid
+        '404':
+          description: Requested resource was not found
+        '500':
+          description: A server error has occurred, try again later
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: x-api-key
+      in: header
+security:
+  - api_key: []
